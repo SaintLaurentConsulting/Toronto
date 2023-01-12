@@ -1,0 +1,73 @@
+#177
+[My Query]:
+[Result]: Fail
+
+#178
+[My Query]: SELECT ID, DENSE_RANK () OVER (ORDER BY SCORE DESC) AS RANKING FROM Scores;
+[Result]: Pass
+
+#180
+[My Query]: SELECT L1.NUM AS CONSECUTIVENUMS FROM Logs L1, Logs L2, Logs L3
+            WHERE L1.NUM=L2.NUM AND L2.NUM=L3.NUM AND L1.ID=L2.ID-1 AND L2.ID=L3.ID-1;
+[Result]: Pass
+
+#184
+[My Query]:SELECT D.DEPT_NAME AS DEPARTMENT, E.NAME AS EMPLOYEE, E.SALARY
+           FROM Employee AS E LEFT JOIN Department AS D ON E. DEPT_ID=D.ID
+           WHERE (D.ID, E.SALARY) IN (SELECT DEPT_ID, MAX (SALARY) AS SALARY
+			              FROM Employee
+                                      GROUP BY DEPT_ID)
+           ORDER BY DEPARTMENT;
+[Result]: Pass
+
+#534
+[My Query]:
+[Result]: Fail
+
+#550
+[My Query]: SELECT ROUND(COUNT(DISTINCT A.PLAYER_ID) / 
+		         (SELECT COUNT(DISTINCT PLAYER_ID) FROM Activity), 2) AS FRACTION
+            FROM Activity AS A JOIN Activity AS B
+            ON A.PLAYER_ID=B.PLAYER_ID AND B.E_DATE-A.E_DATE=1;
+[Result]: Fail
+
+#570
+[My Query]: SELECT E1.NAME
+            FROM Employee E1 JOIN Employee E2
+            ON E1.ID=E2.MANAGERID
+            WHERE E1.MANAGERID IS NULL
+            GROUP BY E1.NAME
+            HAVING COUNT (DISTINCT E2.ID) >=5;
+[Result]: Pass
+
+#574
+[My Query]: SELECT NAME 
+            FROM Candidate
+            WHERE ID = (SELECT CANDIDATE_ID
+	                FROM Vote
+                        GROUP BY CANDIDATE_ID
+	                ORDER BY COUNT (CANDIDATE_ID) DESC LIMIT 1);
+[Result]: Pass
+
+#185
+[My Query]: SELECT DEPT, EMPLOYEE, SALARY
+            FROM (SELECT D.NAME AS DEPT, E.NAME AS EMPLOYEE, E.SALARY,
+	                 DENSE_RANK() OVER (PARTITION BY D.NAME
+				            ORDER BY E.SALARY DESC) AS SALARY_RANK
+	          FROM Employee AS E JOIN Department AS D
+                  ON E.DEPT_ID=D.ID
+                  ORDER BY DEPT) a
+            WHERE SALARY_RANK <=3
+            ORDER BY DEPT ASC, SALARY DESC;
+[Result]: Pass
+
+#262
+[My Query]: SELECT T.REQUEST_AT AS DAY,
+                   ROUND(
+                         SUM(CASE WHEN T.STATUS='Cancelled by Client' OR 'Cancelled by Driver' THEN 1 ELSE 0 END) / COUNT(*),
+                        2) AS `Cancellation Rate`
+FROM Trips AS T JOIN Users AS U
+ON T.CLIENT_ID=U.USER_ID AND U.BANNED='No'
+WHERE T.REQUEST_AT BETWEEN '2013-10-01' AND '2013-10-03'
+GROUP BY T.REQUEST_AT;
+[Result]: Pass
